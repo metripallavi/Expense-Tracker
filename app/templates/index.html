@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+
+{% block title %}Expense Tracker{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <div>
+        <h1>Expense Tracker</h1>
+        <p class="subtitle">Minimal full-stack expense tracker with retry-safe expense creation.</p>
+    </div>
+</section>
+
+<section class="card">
+    <h2>Add Expense</h2>
+    <form id="expense-form" class="expense-form">
+        <div class="form-grid">
+            <div>
+                <label for="amount">Amount</label>
+                <input id="amount" name="amount" type="number" step="0.01" min="0.01" required />
+            </div>
+
+            <div>
+                <label for="category">Category</label>
+                <input id="category" name="category" type="text" maxlength="100" required />
+            </div>
+
+            <div class="full-width">
+                <label for="description">Description</label>
+                <input id="description" name="description" type="text" maxlength="255" required />
+            </div>
+
+            <div>
+                <label for="date">Date</label>
+                <input id="date" name="date" type="date" required />
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button id="submit-button" type="submit">Add Expense</button>
+            <span id="form-status" class="form-status" aria-live="polite"></span>
+        </div>
+    </form>
+</section>
+
+<section class="card">
+    <h2>Expenses</h2>
+
+    <form method="get" action="/" class="filters">
+        <div>
+            <label for="filter-category">Filter by category</label>
+            <select id="filter-category" name="category">
+                <option value="">All categories</option>
+                {% for category in categories %}
+                    <option value="{{ category }}" {% if selected_category == category %}selected{% endif %}>
+                        {{ category }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div>
+            <label for="sort">Sort</label>
+            <select id="sort" name="sort">
+                <option value="date_desc" {% if selected_sort == "date_desc" %}selected{% endif %}>
+                    Newest first
+                </option>
+            </select>
+        </div>
+
+        <div class="filter-actions">
+            <button type="submit">Apply</button>
+            <a href="/" class="secondary-button">Reset</a>
+        </div>
+    </form>
+
+    <div class="total-box">
+        <strong>Total visible expenses:</strong>
+        <span>₹{{ "%.2f"|format(total) }}</span>
+    </div>
+
+    {% if expenses %}
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Amount</th>
+                    <th>Category</th>
+                    <th>Description</th>
+                    <th>Date</th>
+                    <th>Created At</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for expense in expenses %}
+                <tr>
+                    <td>{{ expense.id }}</td>
+                    <td>₹{{ "%.2f"|format(expense.amount) }}</td>
+                    <td>{{ expense.category }}</td>
+                    <td>{{ expense.description }}</td>
+                    <td>{{ expense.date }}</td>
+                    <td>{{ expense.created_at.strftime("%Y-%m-%d %H:%M:%S") if expense.created_at else "" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p class="empty-state">No expenses found for the current filters.</p>
+    {% endif %}
+</section>
+{% endblock %}
